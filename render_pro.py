@@ -8,32 +8,68 @@ from playwright.async_api import async_playwright
 async def render():
     ASSETS_DIR = "assets"
     OUTPUT_DIR = "output"
+    FRAMES_DIR = "temp_frames"
     
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
+    for d in [OUTPUT_DIR, FRAMES_DIR]:
+        if not os.path.exists(d): os.makedirs(d)
 
     json_path = os.path.join(ASSETS_DIR, "data.json")
     audio_path = os.path.join(ASSETS_DIR, "voice.mp3")
-    sfx_path = os.path.join(ASSETS_DIR, "marker_sfx.mp3")
     output_name = os.path.join(OUTPUT_DIR, "final_reel.mp4")
-
-    if not os.path.exists(json_path):
-        print(f"❌ Error: {json_path} not found!")
-        sys.exit(1)
 
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     async with async_playwright() as p:
-        print("🚀 Launching High-Res Browser...")
-        # إضافة args لضمان أفضل ريندر للجرافيكس
+        # تشغيل المتصفح بأعلى إعدادات جرافيكس ممكنة في السحاب
         browser = await p.chromium.launch(headless=True, args=[
-            '--font-render-hinting=none',
-            '--disable-skia-runtime-opts',
-            '--disable-font-subpixel-positioning'
+            '--disable-gpu', '--force-device-scale-factor=3', 
+            '--hide-scrollbars', '--mute-audio'
         ])
         
-        # 🌟 رفع الجودة لـ 3x (هتطلع فيديو أبعاده 1200x2133 تقريباً)
+        # viewport كبير عشان التفاصيل تبان
+        context = await browser.new_context(viewport={'width': 1080, 'height': 1920})
+        page = await context.new_page()
+
+        await page.goto(f"file://{os.getcwd()}/engine.html")
+        await page.evaluate(f"window.REEL_DATA = {json.dumps(data)};")
+        await page.evaluate("startReel();")
+
+        print("📸 Capturing High-Res Frames (Please wait)...")
+        frame_count = 0
+        
+        # حلقة التقاط الصور فريم بـ فريم لضمان 0% بكسلة
+        while True:
+            # لقطة شاشة لكل لحظة أنيميشن بجودة PNG أصلية
+            await page.screenshot(path=f"{FRAMES_DIR}/frame_{frame_count:05d}.png", type='png')
+            frame_count += 1
+            
+            # التأكد لو خلصنا
+            is_done = await page.evaluate("document.getElementById('progress-bar').getAttribute('data-status') === 'finished'")
+            if is_done: break
+            # موازنة سرعة الأنيميشن مع الالتقاط (مهم جداً للنعومة)
+            await asyncio.sleep(0.016) # لمحاكاة 60fps
+
+        await browser.close()
+
+        print(f"🎬 Compiling {frame_count} frames into Ultra-HD Video...")
+        
+        # FFmpeg بياخد الصور الـ PNG ويحولها لفيديو عالي الجودة جداً
+        ffmpeg_cmd = [
+            'ffmpeg', '-y', '-framerate', '60', 
+            '-i', f'{FRAMES_DIR}/frame_%05d.png',
+            '-i', audio_path if os.path.exists(audio_path) else '', # صوت لو موجود
+            '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '12', # CRF 12 يعني جودة خرافية
+            '-pix_fmt', 'yuv420p', '-shortest', output_name
+        ]
+        # لو مفيش صوت هنشيل الـ input التاني
+        if not os.path.exists(audio_path): ffmpeg_cmd.pop(4); ffmpeg_cmd.pop(4)
+
+        subprocess.run(ffmpeg_cmd)
+        print(f"✅ DONE! Video saved as {output_name}")
+
+if __name__ == "__main__":
+    asyncio.run(render())
         context = await browser.new_context(
             viewport={'width': 400, 'height': 711},
             device_scale_factor=3, 
