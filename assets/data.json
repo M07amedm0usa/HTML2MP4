@@ -1,0 +1,30 @@
+[
+  {
+    "type": "box",
+    "style": "style-8",
+    "color": "c-purple",
+    "title": "نصيحة في السريع 💡",
+    "content": "عشان الكود بتاعك يكون احترافي\nاهتم بتنظيم الفولدرات من أول يوم!"
+  },
+  {
+    "type": "box",
+    "style": "style-2",
+    "color": "c-black",
+    "title": "الـ Clean Architecture",
+    "content": "مش مجرد كلام نظري..\nدي اللي بتخلي مشروعك يعيش سنين."
+  },
+  {
+    "type": "box",
+    "style": "style-5",
+    "color": "c-black",
+    "title": "Terminal Tip 💻",
+    "content": "استخدم Git Commit بانتظام\nعشان متندمش في نص الطريق!"
+  },
+  {
+    "type": "box",
+    "style": "style-4",
+    "color": "c-red",
+    "title": "الخلاصة 🎯",
+    "content": "طبق اللي بتتعلمه بإيدك\nالأتمتة هي المستقبل يا بطل!"
+  }
+]
