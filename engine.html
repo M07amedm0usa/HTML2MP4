@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Engine - Ultimate Arsenal</title>
+    <title>Dynamic Engine - Ultimate Page Curl</title>
     <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ─── الأساسيات ─── */
@@ -11,125 +11,64 @@
         body {
             background: #d8dde6; display: flex; justify-content: center; align-items: center;
             height: 100vh; overflow: hidden; font-family: 'Kalam', cursive;
+            -webkit-font-smoothing: antialiased;
         }
 
         #reel-container {
             width: 400px; height: 711px; background: #fafafa;
             background-image: radial-gradient(#ddd 1px, transparent 1px); background-size: 22px 22px;
             position: relative; border-radius: 16px; overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            perspective: 1500px;
         }
 
         #progress-bar {
             position: absolute; top: 0; left: 0; height: 5px;
             background: linear-gradient(90deg, #e74c3c, #8e44ad);
-            width: 0%; transition: width linear; z-index: 200;
+            width: 0%; transition: width linear; z-index: 500;
         }
 
+        /* 🔥 تأثير ثنية الورقة (Diagonal Curl) 🔥 */
         .scene {
             position: absolute; inset: 0; display: flex; flex-direction: column;
             justify-content: center; align-items: center; padding: 32px 28px;
-            opacity: 0; transform: translateY(15px) scale(0.95);
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none; z-index: 20; gap: 15px;
-        }
-        .scene.active { opacity: 1; transform: translateY(0) scale(1); }
-
-        /* ─── الأساسيات المشتركة ─── */
-        .sketch-box {
-            width: 100%; padding: 20px 24px; text-align: center; 
-            font-weight: 700; line-height: 1.5; transition: all 0.3s;
-            position: relative;
+            background: #fafafa; z-index: 10; opacity: 0;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            transition: clip-path 1.2s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.5s;
+            gap: 15px;
         }
 
-        .box-title { font-size: 28px; margin-bottom: 10px; }
-        .box-body { font-size: 22px; }
+        .scene.active { opacity: 1; z-index: 20; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+
+        /* حالة الخروج (المسح المائل) */
+        .scene.exit {
+            opacity: 1; z-index: 30;
+            clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+        }
+
+        /* لمعة الثنية المائلة */
+        .scene::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(135deg, transparent 48%, rgba(255,255,255,0.9) 50%, rgba(0,0,0,0.05) 52%, transparent 55%);
+            transform: rotate(0deg); transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+            pointer-events: none; z-index: 40; opacity: 0;
+        }
+        .scene.exit::after { opacity: 1; transform: translate(-50%, 50%); }
+
+        /* ─── ستايلات البوكسات ─── */
+        .sketch-box { width: 100%; padding: 20px 24px; text-align: center; font-weight: 700; position: relative; }
+        .style-8 { background: #fff; border: 3px solid currentColor; border-radius: 10px 255px 10px 255px / 255px 10px 255px 10px; }
+        .style-5 { background: #282a36; color: #f8f8f2 !important; border-radius: 12px; padding-top: 35px; border: 1px solid #444; }
+        .style-5::before { content: ''; position: absolute; top: 12px; right: 15px; width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; box-shadow: -15px 0 0 #ffbd2e, -30px 0 0 #27c93f; }
         
-        /* ─── باليتة الألوان (الأساسية والجديدة) ─── */
-        .c-black   { color: #1a1a2e; } .c-red     { color: #c0392b; }
-        .c-blue    { color: #1a6bb5; } .c-green   { color: #1e8449; }
-        .c-purple  { color: #8e44ad; } .c-orange  { color: #e67e22; }
-        .c-teal    { color: #16a085; } .c-magenta { color: #e84393; }
+        .box-title { font-size: 26px; margin-bottom: 8px; }
+        .box-body { font-size: 20px; line-height: 1.4; }
+        .c-purple { color: #8e44ad; } .c-black { color: #1a1a2e; }
 
-        /* 🔥 الترسانة: 8 ستايلات مختلفة للبوكسات 🔥 */
-        
-        /* 1. الكلاسيكي */
-        .style-1 {
-            background: #fff; border: 3px solid currentColor;
-            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.09);
-        }
-
-        /* 2. الـ Sticky Note */
-        .style-2 {
-            background: #fff9c4; border: 2px solid #f39c12; color: #1a1a2e !important;
-            border-radius: 2px 15px 2px 15px; box-shadow: 6px 8px 0 rgba(243, 156, 18, 0.2);
-            transform: rotate(-2deg);
-        }
-
-        /* 3. المتقطع */
-        .style-3 {
-            background: #f8f9fa; border: 4px dashed currentColor;
-            border-radius: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-        }
-
-        /* 4. الغامق المقلوب */
-        .style-4 {
-            background: #2c3e50; border: 3px solid #34495e; color: #ecf0f1 !important;
-            border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px;
-            box-shadow: 4px 4px 0 rgba(44, 62, 80, 0.4); transform: rotate(1deg);
-        }
-
-        /* 5. شاشة الماك (Terminal) */
-        .style-5 {
-            background: #282a36; color: #f8f8f2 !important; border-radius: 12px;
-            padding-top: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid #444;
-        }
-        .style-5::before {
-            content: ''; position: absolute; top: 12px; right: 15px;
-            width: 12px; height: 12px; border-radius: 50%;
-            background: #ff5f56; /* زرار أحمر */
-            box-shadow: -20px 0 0 #ffbd2e, -40px 0 0 #27c93f; /* أصفر وأخضر */
-        }
-
-        /* 6. الأقواس (Brackets) */
-        .style-6 {
-            background: transparent; border: none;
-            border-right: 6px solid currentColor; border-left: 6px solid currentColor;
-            border-radius: 25px; padding: 20px 30px;
-        }
-
-        /* 7. الهايلايتر (Highlighter) */
-        .style-7 {
-            background: rgba(0,0,0,0.04); border: none; border-bottom: 5px solid currentColor;
-            border-radius: 5px 5px 0 0; transform: skewX(-5deg);
-        }
-
-        /* 8. الشخبطة المزدوجة (Double Sketch) */
-        .style-8 {
-            background: #fff; border: 3px solid currentColor;
-            border-radius: 10px 255px 10px 255px / 255px 10px 255px 10px;
-            box-shadow: 5px 5px 0 rgba(0,0,0,0.05), -2px -2px 0 currentColor;
-        }
-
-        /* ─── الأكواد ─── */
-        .code-block {
-            background: #1a1a2e; color: #a8ff78; font-family: 'Courier New', monospace;
-            font-size: 16px; border-radius: 10px; padding: 15px; width: 100%;
-            text-align: left; direction: ltr; margin-top: 10px; line-height: 1.6;
-        }
-
-        /* ─── الإيد والحبر ─── */
-        #pen-cursor {
-            position: absolute; width: 64px; height: 64px; z-index: 150;
-            top: 110%; left: 50%; transition: top 0.07s linear, left 0.07s linear;
-        }
-        @keyframes markerWiggle {
-            0% { transform: rotate(-12deg) translateY(0); }
-            50% { transform: rotate(-8deg) translateY(-2px); }
-            100% { transform: rotate(-12deg) translateY(0); }
-        }
-        .pen-writing { animation: markerWiggle 0.1s infinite; }
+        /* ─── القلم والحبر ─── */
+        #pen-cursor { position: absolute; width: 60px; height: 60px; z-index: 100; top: 110%; left: 50%; transition: top 0.06s linear, left 0.06s linear; }
+        .pen-writing { animation: markerWiggle 0.08s infinite; }
+        @keyframes markerWiggle { 0% { transform: rotate(-10deg); } 100% { transform: rotate(-6deg); } }
         .char { opacity: 0; }
         #ink-canvas { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
     </style>
@@ -140,149 +79,77 @@
     <div id="progress-bar"></div>
     <canvas id="ink-canvas" width="400" height="711"></canvas>
     <div id="scenes-container"></div>
-
-    <svg id="pen-cursor" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="22" y="3" width="18" height="40" rx="5" fill="#222831" stroke="#111" stroke-width="1.5"/>
-        <rect x="22" y="3" width="18" height="10" rx="4" fill="#e74c3c" stroke="#c0392b" stroke-width="1.2"/>
-        <path d="M22,43 L40,43 L33,57 L29,57 Z" fill="#e8dcc8" stroke="#888" stroke-width="1.2"/>
-        <rect x="28" y="55" width="6" height="5" rx="1" fill="#111"/>
-    </svg>
+    <svg id="pen-cursor" viewBox="0 0 64 64"><rect x="22" y="3" width="18" height="40" rx="5" fill="#222" /><rect x="22" y="3" width="18" height="10" rx="4" fill="#e74c3c" /><path d="M22,43 L40,43 L33,57 L29,57 Z" fill="#e8dcc8" /><rect x="28" y="55" width="6" height="5" fill="#111"/></svg>
 </div>
 
 <script>
-    // =================================================================
-    // 1. الداتا (استعراض لكل الستايلات والألوان الجديدة)
-    // =================================================================
-    const REEL_DATA = [
-        { type: "box", style: "style-8", color: "c-purple", title: "تركات فلاتر 🚀", content: "حاجات محدش هيقولك عليها!" },
-        { type: "box", style: "style-7", color: "c-teal", title: "قاعدة رقم 1:", content: "متكتبش الكود كله في Main.dart ❌" },
-        { type: "code", style: "style-5", color: "c-black", title: "شكل الكود الصح 💻", code: "class CleanApp extends StatelessWidget {\n  // Architecture is key\n}" },
-        { type: "box", style: "style-6", color: "c-magenta", title: "الخلاصة 🧠", content: "الـ Clean Architecture\nمش مجرد رفاهية!" },
-        { type: "box", style: "style-2", color: "c-black", title: "ملحوظة ⚠️", content: "طبق بإيدك كل يوم!" },
-        { type: "box", style: "style-4", color: "c-black", title: "فولو للمزيد 🔥", content: "@m07amedm0usa" }
+    // سيتم حقن البيانات من خلال Playwright أو استخدام هذه كداتا افتراضية
+    let REEL_DATA = window.REEL_DATA || [
+        { type: "box", style: "style-8", color: "c-purple", title: "بداية الأتمتة 🤖", content: "الريندر شغال الآن\nعلى GitHub Actions" },
+        { type: "box", style: "style-5", color: "c-black", title: "Terminal Log", content: "Render Status: 200 OK\nQuality: 1080p 60fps" }
     ];
 
-    // =================================================================
-    // 2. البناء الديناميكي ومطابقة ألوان الحبر
-    // =================================================================
-    const scenesContainer = document.getElementById('scenes-container');
-    const inkColors = { 
-        'c-red': '#c0392b', 'c-blue': '#1a6bb5', 'c-green': '#1e8449', 'c-black': '#1a1a2e',
-        'c-purple': '#8e44ad', 'c-orange': '#e67e22', 'c-teal': '#16a085', 'c-magenta': '#e84393'
-    };
-    
-    REEL_DATA.forEach((data, index) => {
-        let html = '';
-        const boxClass = data.style || 'style-1'; 
-        
-        if (data.type === 'box') {
-            html = `<div class="sketch-box ${boxClass} ${data.color}">
-                        <div class="box-title">${data.title}</div>
-                        <div class="box-body">${data.content.replace(/\n/g, '<br>')}</div>
-                    </div>`;
-        } else if (data.type === 'code') {
-            html = `<div class="sketch-box ${boxClass} ${data.color}">
-                        <div class="box-title">${data.title}</div>
-                        <div class="code-block">${data.code.replace(/\n/g, '<br>')}</div>
-                    </div>`;
-        }
-
-        const sceneDiv = document.createElement('div');
-        sceneDiv.className = 'scene'; sceneDiv.id = `scene-${index}`; sceneDiv.innerHTML = html;
-        
-        // لو البوكس غامق (Terminal أو Dark Inverted) نخلي الحبر أبيض أو فاتح عشان يبان
-        if (boxClass === 'style-4' || boxClass === 'style-5') {
-            sceneDiv.dataset.color = '#a8ff78'; // لون أخضر نيون لايق مع الغوامق
-        } else {
-            sceneDiv.dataset.color = inkColors[data.color] || '#1a1a2e';
-        }
-        
-        scenesContainer.appendChild(sceneDiv);
-    });
-
-    // =================================================================
-    // 3. التجهيز والكتابة (بدون أي تغيير)
-    // =================================================================
-    document.querySelectorAll('.scene').forEach(scene => {
-        const walker = document.createTreeWalker(scene, NodeFilter.SHOW_TEXT, null, false);
-        const nodes = []; let n;
-        while ((n = walker.nextNode())) { if (n.nodeValue.trim() !== '') nodes.push(n); }
-        nodes.forEach(textNode => {
-            const frag = document.createDocumentFragment();
-            Array.from(textNode.nodeValue).forEach(ch => {
-                const s = document.createElement('span'); s.className = 'char'; s.textContent = ch; frag.appendChild(s);
-            });
-            textNode.parentNode.replaceChild(frag, textNode);
+    function build() {
+        const container = document.getElementById('scenes-container');
+        REEL_DATA.forEach((data, i) => {
+            const sc = document.createElement('div'); sc.className = 'scene';
+            sc.innerHTML = `<div class="sketch-box ${data.style} ${data.color}"><div class="box-title">${data.title}</div><div class="box-body">${data.content.replace(/\n/g, '<br>')}</div></div>`;
+            container.appendChild(sc);
         });
-    });
+        // تقسيم النصوص لحروف للكتابة
+        document.querySelectorAll('.box-title, .box-body').forEach(el => {
+            const text = el.innerText; el.innerHTML = '';
+            [...text].forEach(ch => { const s = document.createElement('span'); s.className = 'char'; s.textContent = ch; el.appendChild(s); });
+        });
+    }
 
     const canvas = document.getElementById('ink-canvas');
     const ctx = canvas.getContext('2d');
-    let lastX = -1, lastY = -1; let currentColor = '#1a1a2e';
+    let lastX = -1, lastY = -1;
 
-    function drawInk(x, y) {
-        if (lastX < 0) { lastX = x; lastY = y; return; }
-        ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y);
-        ctx.strokeStyle = currentColor; ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round'; ctx.globalAlpha = 0.4; ctx.stroke();
-        lastX = x; lastY = y;
-    }
-    function clearInk() { ctx.clearRect(0, 0, canvas.width, canvas.height); lastX = -1; lastY = -1; }
-
-    async function writeScene(scene) {
+    async function write(scene) {
         const chars = scene.querySelectorAll('.char');
         const pen = document.getElementById('pen-cursor');
-        const contRect = document.getElementById('reel-container').getBoundingClientRect();
-        
-        // تغيير لون الحبر (ولون القلم الـ SVG لو حابب تتشقلب مستقبلاً)
-        currentColor = scene.dataset.color;
+        const cont = document.getElementById('reel-container').getBoundingClientRect();
+        ctx.strokeStyle = '#1a1a2e'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
 
-        return new Promise(resolve => {
-            let i = 0; pen.style.top = '110%'; pen.style.left = '50%';
-            function write() {
-                if (i < chars.length) {
-                    pen.classList.add('pen-writing'); chars[i].style.opacity = '1';
-                    const ch = chars[i].textContent;
-                    if (ch.trim() !== '') {
-                        const r = chars[i].getBoundingClientRect();
-                        const x = r.left - contRect.left + r.width / 2;
-                        const y = r.top - contRect.top + r.height * 0.85;
-                        pen.style.left = (x - 31) + 'px'; pen.style.top = (y - 60) + 'px';
-                        drawInk(x, y);
-                    }
-                    i++; setTimeout(write, ch === '\n' ? 80 : 50);
-                } else {
-                    pen.classList.remove('pen-writing'); pen.style.top = '110%'; lastX = -1; lastY = -1; resolve();
-                }
-            }
-            setTimeout(write, 300);
-        });
+        for (let i = 0; i < chars.length; i++) {
+            pen.classList.add('pen-writing');
+            chars[i].style.opacity = '1';
+            const r = chars[i].getBoundingClientRect();
+            const x = r.left - cont.left + r.width/2;
+            const y = r.top - cont.top + r.height*0.8;
+            pen.style.left = (x-30)+'px'; pen.style.top = (y-55)+'px';
+            if(lastX!==-1) { ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x,y); ctx.stroke(); }
+            lastX=x; lastY=y; await new Promise(r => setTimeout(r, 45));
+        }
+        pen.classList.remove('pen-writing'); pen.style.top = '110%'; lastX=-1;
     }
 
     async function startReel() {
+        build();
         const scenes = document.querySelectorAll('.scene');
-        let totalTime = 0;
-        scenes.forEach(s => totalTime += (s.querySelectorAll('.char').length * 50) + 2000);
-        document.getElementById('progress-bar').style.transition = `width ${totalTime/1000}s linear`;
-        setTimeout(() => { document.getElementById('progress-bar').style.width = '100%'; }, 100);
+        document.getElementById('progress-bar').style.transition = `width 15s linear`;
+        setTimeout(() => document.getElementById('progress-bar').style.width = '100%', 100);
 
         for (let i = 0; i < scenes.length; i++) {
-            clearInk(); scenes[i].classList.add('active');
-            await new Promise(r => setTimeout(r, 500));
-            await writeScene(scenes[i]);
-            
-            const charsCount = scenes[i].querySelectorAll('.char').length;
-            const dynamicWait = Math.max(1500, charsCount * 30);
-            await new Promise(r => setTimeout(r, dynamicWait));
-
+            ctx.clearRect(0,0,400,711);
+            scenes[i].classList.add('active');
+            await new Promise(r => setTimeout(r, 1000));
+            await write(scenes[i]);
+            await new Promise(r => setTimeout(r, 2000));
             if (i < scenes.length - 1) {
-                scenes[i].classList.remove('active');
-                await new Promise(r => setTimeout(r, 400));
+                scenes[i].classList.add('exit');
+                await new Promise(r => setTimeout(r, 1300));
+            } else {
+                // ✅ الإشارة لـ Playwright بالانتهاء
+                document.getElementById('progress-bar').setAttribute('data-status', 'finished');
             }
         }
     }
 
-    setTimeout(startReel, 500);
+    // تشغيل تلقائي
+    window.onload = () => setTimeout(startReel, 500);
 </script>
 </body>
-  </html>
+</html>
