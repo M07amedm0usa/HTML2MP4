@@ -2,8 +2,8 @@ name: Automated Video Render
 on:
   push:
     paths:
-      - 'assets/**' # يشتغل فقط لما n8n يغير ملفات الأسيتس
-  workflow_dispatch: # للتشغيل اليدوي للتجربة
+      - 'assets/**' # يشتغل لما n8n يرفع ملفات جديدة فيassets
+  workflow_dispatch: # زرار تشغيل يدوي للتجربة
 
 jobs:
   render_job:
@@ -31,5 +31,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Final-Instagram-Reel
-          path: output/final_reel.mp4
+          # تأكدنا إن المسار مطابق للي في البايثون (output/final_video.mp4)
+          path: output/final_video.mp4
+          if-no-files-found: error
           
